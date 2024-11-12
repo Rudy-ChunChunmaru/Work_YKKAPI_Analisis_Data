@@ -1,4 +1,9 @@
-from read_proses import ReadProsesXlsx as rpx
+from read_proses import ReadFormulaXlsx as rfx
 
-test  = rpx('./Madela_Remplate/10001.xlsx')
 
+
+
+test  = rfx('./Madela_Template/10001.xlsx')
+test.findFormula()
+print(test.fromulaList)
+test.endReadProses()
