@@ -4,7 +4,7 @@ from spire.xls.common import *
 class ReadFormulaXlsx:
     def __init__(self,pathToGet,xlsxName):
         self.workbook = Workbook()
-        self.workbook.LoadFromFile(pathToGet)
+        self.workbook.LoadFromFile(f'{pathToGet}{xlsxName}.xlsx')
         self.sheet = self.workbook.Worksheets[0]
         self.sheetName = self.sheet.Name
         self.fromulaList = []
