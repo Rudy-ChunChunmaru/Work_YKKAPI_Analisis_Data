@@ -15,7 +15,10 @@ class ReadFormulaXlsx:
             if(cell.HasFormula):
                 cellName = cell.RangeAddressLocal
                 formula = cell.Formula
-                self.fromulaList.append({cellName:formula})
+                self.fromulaList.append({
+                    'cell' : cellName,
+                    'text':formula
+                })
 
 
     def endReadProses(self):
@@ -32,14 +35,17 @@ class CopyWorkBook:
         self.deSheetName = self.deSheet.Name
         # new workbook
         self.workbook = Workbook()
-        self.workbook.Worksheets.Add(desheetName)
-        self.workbook.CopyFrom(deSheet)
+        self.sheet = self.workbook.Worksheets.Add(self.deSheetName)
+        self.sheet.CopyFrom(self.deSheet)
         #close deworkbook
         self.deWorkbook.Dispose()
 
     def saveFile(self,pathToSave):
         self.workbook.SaveToFile(f'{pathToSave}{self.xlsxName}.xlsx')
         self.workbook.Dispose()
+
+    def editText(self,cell,text):
+        self.sheet.Range[f'{cell}'].Text = text
 
 
 
