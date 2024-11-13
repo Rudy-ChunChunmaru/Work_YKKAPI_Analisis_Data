@@ -24,7 +24,6 @@ CellNotForReplaceFromula = [
 ReplaceCell = [
     {'cell':'J4','text':'Online','hasFormula':True},
     {'cell':'J4','text':'Online','hasFormula':True},
-    {'cell':''}
 ]
 
 for value in listFormula:
