@@ -41,6 +41,12 @@ ReplaceCell = [
     {'cell':'BF6','text':'Online','hasFormula':True},
     {'cell':'BV4','text':'Online','hasFormula':True},
     {'cell':'BV6','text':'Online','hasFormula':True},
+    # Page 2 Total
+    {'cell':'AF49','text':"'=(AF48*0.986)",'hasFormula':True},
+    {'cell':'AF50','text':"'=((AF48*0.974)*0.986)",'hasFormula':True},
+    # Page 3 Total
+    {'cell':'AV49','text':"'=(AV48*0.986)",'hasFormula':True},
+    {'cell':'AV50','text':"'=((AV48*0.974)*0.986)",'hasFormula':True},
 ]
 
 ListHeaderPage = ['B1','R1','AH1','AX1','BN1'] 
@@ -51,14 +57,18 @@ typeSheetPage3 = {
     'fabricationColom': [
         {
         'cell':'U',
+        'qty':'Z',
+        'weight':'AF',
         'listCell':['R','S','T','U','v','W','X','Y','Z','AA','AB','AC','AD','AE','AF']
         },
     ],
     'partRowFrom': 22,
-    'partRowTo': 60,
+    'partRowTo': 61,
     'partColom': [
         {
         'cell':'AK',
+        'qty':'AP',
+        'weight':'AV',
         'listCell':['AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV']
         },
     ],
@@ -70,22 +80,30 @@ typeSheetPage5 = {
     'fabricationColom': [
         {
         'cell':'U',
+        'qty':'Z',
+        'weight':'AF',
         'listCell':['R','S','T','U','v','W','X','Y','Z','AA','AB','AC','AD','AE','AF']
         },
         {
         'cell':'AK',
+        'qty':'AP',
+        'weight':'AV',
         'listCell':['AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV']
         },
     ],
     'partRowFrom': 22,
-    'partRowTo': 60,
+    'partRowTo': 61,
     'partColom': [
         {
         'cell':'BA',
+        'qty':'BF',
+        'weight':'BL',
         'listCell':['AX','AY','AZ','BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL']
         },
         {
         'cell':'BQ',
+        'qty':'BV',
+        'weight':'CB',
         'listCell':['BN','BO','BP','BQ','BR','BS','BT','BU','BV','BW','BX','BY','BZ','CA','CB']
         },
     ],
@@ -100,7 +118,7 @@ def mainRun(xlsxName):
     workBook = cwb(pathToGet=pathToGet,xlsxName=xlsxName)
     listFormula = prosesFormula.fromulaList
     listCellHasFromula = [valueListFromula['cell'] for valueListFromula in listFormula]
-    
+    dataHeaderSheet = []
 
     # TODO-HEADERPAGE:
     def ColomHeaderPage():
@@ -128,9 +146,9 @@ def mainRun(xlsxName):
                     workBook.editText(cell=ValueReplaceCell['cell'],text=ValueReplaceCell['text'])
 
 
-    # TODO-Empty Text
-    def ColomEmpty():
-        dataHeaderSheet = ColomHeaderPage()
+    # TODO-Empty Text AND Fix Fromula
+    dataHeaderSheet = ColomHeaderPage()
+    def ColomEmptyANDFixFromula():
         countDataHeaderSheet  = 0
         for valueDataHeaderSheet in dataHeaderSheet:
             if valueDataHeaderSheet:
@@ -143,6 +161,33 @@ def mainRun(xlsxName):
         else:
             sheetpage={}
 
+
+        def ReplacementFromQtyColom(value,consStart,consEnd):
+            try:
+                listIfCons = value.replace(consStart,'').replace(consEnd,'').split(',')
+                if(len(listIfCons) == 3):
+                    return f"'{consStart}{listIfCons[0]},{listIfCons[1]},({listIfCons[2]}){consEnd}"
+                else:
+                    return '$FAIL$'
+            except:
+                return '$FAIL$'
+            
+        def ReplacementFromWeightColom(value,consStart,consEnd):
+            try:
+                listIfCons = value.replace(consStart,'').replace(consEnd,'').split(',')
+                if(len(listIfCons) == 3):
+                    listFromula = listIfCons[1].split('*')
+                    if(len(listFromula) == 3):
+                        return f"'{consStart}{listIfCons[0]},(({listFromula[0]}*{listFromula[1]})*{listFromula[2].split('/')[0]})/{listFromula[2].split('/')[1]}),{listIfCons[2]}{consEnd}"
+                    else:
+                        return '$FAIL$'
+                else:
+                    return '$FAIL$'
+            except:
+                return '$FAIL$'
+
+
+        # start
         if not sheetpage == {}:
             # fabrication
             for valueColomCell in sheetpage['fabricationColom']:
@@ -150,12 +195,46 @@ def mainRun(xlsxName):
                     if not workBook.sheet.Range[f'{valueColomCell['cell']}{valueRowCell}'].Text:
                         for valueListCell in valueColomCell['listCell']:
                             workBook.editText(cell=f"{valueListCell}{valueRowCell}",text="")
+                    else:
+                        # qty
+                        if workBook.sheet.Range[f'{valueColomCell['qty']}{valueRowCell}'].Text:
+                            workBook.editText(
+                                cell=f"{valueColomCell['qty']}{valueRowCell}",
+                                text=ReplacementFromQtyColom(
+                                    value=workBook.sheet.Range[f'{valueColomCell['qty']}{valueRowCell}'].Text,
+                                    consStart='=IF(',
+                                    consEnd=')'
+                                )
+                            )
+                        # weight
+                        if workBook.sheet.Range[f'{valueColomCell['weight']}{valueRowCell}'].Text:
+                            workBook.editText(
+                                cell=f"{valueColomCell['weight']}{valueRowCell}",
+                                text=ReplacementFromWeightColom(
+                                    value=workBook.sheet.Range[f'{valueColomCell['weight']}{valueRowCell}'].Text,
+                                    consStart='=IF(',
+                                    consEnd=')'
+                                )
+                            )
+                            
+                        
             # part
             for valueColomCell in sheetpage['partColom']:
                 for valueRowCell in range(sheetpage['partRowFrom'],sheetpage['partRowTo']):
                     if not workBook.sheet.Range[f'{valueColomCell['cell']}{valueRowCell}'].Text:
                         for valueListCell in valueColomCell['listCell']:
                             workBook.editText(cell=f"{valueListCell}{valueRowCell}",text="")
+                    else:
+                        # qty
+                        if workBook.sheet.Range[f'{valueColomCell['qty']}{valueRowCell}'].Text:
+                            workBook.editText(
+                                cell=f"{valueColomCell['qty']}{valueRowCell}",
+                                text=ReplacementFromQtyColom(
+                                    value=workBook.sheet.Range[f'{valueColomCell['qty']}{valueRowCell}'].Text,
+                                    consStart='=IF(',
+                                    consEnd=')'
+                                )
+                            )
 
                 
 
@@ -163,7 +242,7 @@ def mainRun(xlsxName):
 
     ColomFromula()
     ColomReplace()
-    ColomEmpty()
+    ColomEmptyANDFixFromula()
 
     workBook.saveFile(pathToSave)
     prosesFormula.endReadProses()
