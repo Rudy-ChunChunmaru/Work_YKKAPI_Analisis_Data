@@ -1,9 +1,9 @@
 from read_proses import ReadFormulaXlsx as rfx, CopyWorkBook as cwb
-from data import listXlsx
+from data import listXlsx,listXlsxRudy
 
 pathToGet = './Madela_Template/'
 pathToSave = './Proses_Madela_Template/'
-# listXlsx = ['10001','10010']
+listXlsx = listXlsxRudy
 
 
 CellNotForReplaceFromula = [
