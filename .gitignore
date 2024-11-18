@@ -1,3 +1,4 @@
-/proses_data_upload_bc/venv
+/proses_data_upload_bc/.venv/
+/proses_data_upload_bc/__pycache__/
 /proses_data_upload_bc/Madela_Template/
 /proses_data_upload_bc/Proses_Madela_Template/
