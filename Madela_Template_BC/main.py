@@ -1,4 +1,5 @@
 from read_proses import ReadFormulaXlsx as rfx, CopyWorkBook as cwb
+from database import Database_Shiage as shiage
 from data import listXlsx,listXlsxRudy
 
 pathToGet = './Madela_Template/'
@@ -185,7 +186,17 @@ def mainRun(xlsxName):
                     return '$FAIL$'
             except:
                 return '$FAIL$'
-
+            
+        def ReplacementFromulaCellColom(BomID,FormulaCode):
+            dbShiage = shiage()
+            getDataFromulaCell = dbShiage.GetMadelaFormula(
+                strWhere=f" BOM_ID ='{BomID}' AND  Type='P' AND FormulaCode='{FormulaCode}'"
+            )
+            if len(getDataFromulaCell) >= 1:
+                strText = f"'={getDataFromulaCell[0].Formula}"
+                return strText
+            else:
+                return FormulaCode
 
         # start
         if not sheetpage == {}:
@@ -235,10 +246,15 @@ def mainRun(xlsxName):
                                     consEnd=')'
                                 )
                             )
-
-                
-
-
+                        # Fromula
+                        if workBook.sheet.Range[f'{valueColomCell['cell']}{valueRowCell}'].Text.find('P-') != -1:
+                            workBook.editText(
+                                cell=f"{valueColomCell['cell']}{valueRowCell}",
+                                text=ReplacementFromulaCellColom(
+                                    BomID=xlsxName,
+                                    FormulaCode=workBook.sheet.Range[f'{valueColomCell['cell']}{valueRowCell}'].Text
+                                )
+                            )
 
     ColomFromula()
     ColomReplace()

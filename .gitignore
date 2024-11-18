@@ -1,3 +1,6 @@
-/proses_data_upload_bc/venv
-/proses_data_upload_bc/Madela_Template/
-/proses_data_upload_bc/Proses_Madela_Template/
+/Madela_Template_BC/.venv/
+/Madela_Template_BC/Madela_Template/
+/Madela_Template_BC/Proses_Madela_Template/
+/Madela_Template_BC/__pycache__/
+
+/UnitItem_Code_BC_BOT/.venv/
