@@ -24,9 +24,6 @@ CellNotForReplaceFromula = [
     'E14','E15','E16','E17','E18',
     'H14','H15','H16','H17','H18',
     'J14','J15','J16','J17','J18',
-    'L14','L15','L16','L17','L18',
-    'N14','N15','N16','N17','N18',
-    'P14','P15','P16','P17','P18',
     # colom Footer page 1
     'F42','O42','P42'
 ]
@@ -57,6 +54,7 @@ typeSheetPage3 = {
     'fabricationRowTo': 48,
     'fabricationColom': [
         {
+        'group':'OUTER',
         'cell':'U',
         'qty':'Z',
         'weight':'AF',
@@ -67,6 +65,7 @@ typeSheetPage3 = {
     'partRowTo': 61,
     'partColom': [
         {
+        'group':'OUTER',
         'cell':'AK',
         'qty':'AP',
         'weight':'AV',
@@ -80,12 +79,14 @@ typeSheetPage5 = {
     'fabricationRowTo': 48,
     'fabricationColom': [
         {
+        'group':'OUTER',
         'cell':'U',
         'qty':'Z',
         'weight':'AF',
         'listCell':['R','S','T','U','v','W','X','Y','Z','AA','AB','AC','AD','AE','AF']
         },
         {
+        'group':'INNER',
         'cell':'AK',
         'qty':'AP',
         'weight':'AV',
@@ -96,12 +97,14 @@ typeSheetPage5 = {
     'partRowTo': 61,
     'partColom': [
         {
+        'group':'OUTER',
         'cell':'BA',
         'qty':'BF',
         'weight':'BL',
         'listCell':['AX','AY','AZ','BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL']
         },
         {
+        'group':'INNER',
         'cell':'BQ',
         'qty':'BV',
         'weight':'CB',
@@ -189,7 +192,7 @@ def mainRun(xlsxName):
             
         def ReplacementFromulaCellColom(BomID,FormulaCode):
             dbShiage = shiage()
-            getDataFromulaCell = dbShiage.GetMadelaFormula(
+            getDataFromulaCell = dbShiage.GetMadelaFormulaBom(
                 strWhere=f" BOM_ID ='{BomID}' AND  Type='P' AND FormulaCode='{FormulaCode}'"
             )
             if len(getDataFromulaCell) >= 1:
@@ -197,6 +200,8 @@ def mainRun(xlsxName):
                 return strText
             else:
                 return FormulaCode
+            
+        def ReplacementColorCellPartPageColom(BomID,)
 
         # start
         if not sheetpage == {}:

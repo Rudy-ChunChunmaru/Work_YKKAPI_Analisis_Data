@@ -10,12 +10,35 @@ class Database_Shiage:
         self.conn = pyodbc.connect(self.connectionString)
         self.cursor = self.conn.cursor()
 
-    def GetMadelaFormula(self,strWhere=None,strOrderBy=None):
+    def GetMadelaFormulaBom(self,strWhere=None,strOrderBy=None):
         SQL_QUERY = """
         SELECT 
         * 
         from 
         YKK_AP.dbo.MADELA_MASTER_FORMULA 
+        """
+
+        if(strWhere):
+            SQL_QUERY += f"""
+                where 
+                {strWhere}
+            """
+
+        if(strOrderBy):
+            SQL_QUERY += f"""
+                order by 
+                {strOrderBy}
+            """
+
+        self.cursor.execute(SQL_QUERY)
+        return self.cursor.fetchall()
+    
+    def GetMadelaPartBom(self,strWhere=None,strOrderBy=None):
+        SQL_QUERY = """
+        SELECT 
+        * 
+        from 
+        YKK_AP.dbo.MADELA_PARTLIST_MSTDTL_BOM 
         """
 
         if(strWhere):
