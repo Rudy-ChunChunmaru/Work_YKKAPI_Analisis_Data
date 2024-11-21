@@ -58,6 +58,8 @@ typeSheetPage3 = {
         'cell':'U',
         'qty':'Z',
         'weight':'AF',
+        'FS':'',
+        'color':'',
         'listCell':['R','S','T','U','v','W','X','Y','Z','AA','AB','AC','AD','AE','AF']
         },
     ],
@@ -68,7 +70,9 @@ typeSheetPage3 = {
         'group':'OUTER',
         'cell':'AK',
         'qty':'AP',
-        'weight':'AV',
+        'weight':'',
+        'FS':'AV',
+        'color':'AN',
         'listCell':['AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV']
         },
     ],
@@ -83,6 +87,8 @@ typeSheetPage5 = {
         'cell':'U',
         'qty':'Z',
         'weight':'AF',
+        'FS':'',
+        'color':'',
         'listCell':['R','S','T','U','v','W','X','Y','Z','AA','AB','AC','AD','AE','AF']
         },
         {
@@ -90,6 +96,8 @@ typeSheetPage5 = {
         'cell':'AK',
         'qty':'AP',
         'weight':'AV',
+        'FS':'',
+        'color':'',
         'listCell':['AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV']
         },
     ],
@@ -100,14 +108,18 @@ typeSheetPage5 = {
         'group':'OUTER',
         'cell':'BA',
         'qty':'BF',
-        'weight':'BL',
+        'weight':'',
+        'FS':'BL',
+        'color':'BD',
         'listCell':['AX','AY','AZ','BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL']
         },
         {
         'group':'INNER',
         'cell':'BQ',
         'qty':'BV',
-        'weight':'CB',
+        'weight':'',
+        'FS':'CB',
+        'color':'BT',
         'listCell':['BN','BO','BP','BQ','BR','BS','BT','BU','BV','BW','BX','BY','BZ','CA','CB']
         },
     ],
@@ -123,6 +135,7 @@ def mainRun(xlsxName):
     listFormula = prosesFormula.fromulaList
     listCellHasFromula = [valueListFromula['cell'] for valueListFromula in listFormula]
     dataHeaderSheet = []
+    
 
     # TODO-HEADERPAGE:
     def ColomHeaderPage():
@@ -152,6 +165,7 @@ def mainRun(xlsxName):
 
     # TODO-Empty Text AND Fix Fromula
     dataHeaderSheet = ColomHeaderPage()
+    
     def ColomEmptyANDFixFromula():
         countDataHeaderSheet  = 0
         for valueDataHeaderSheet in dataHeaderSheet:
@@ -201,7 +215,23 @@ def mainRun(xlsxName):
             else:
                 return FormulaCode
             
-        def ReplacementColorCellPartPageColom(BomID,)
+        def ReplacementColorCellPartPageColom(BomID,group,partno,FS,color):
+            strWhere= f" BOM_ID ='{BomID}' AND Cls_IOM='{group}' AND PartNo='{partno}' "
+
+            if FS :
+                strWhere += f" AND FS='S'"
+            else:
+                strWhere += f" AND FS=''"
+            dbShiage = shiage()
+            getDataMadelaPartCell = dbShiage.GetMadelaPartBom(
+                strWhere=strWhere
+            )
+            if len(getDataMadelaPartCell) == 1:
+                strText = f"{getDataMadelaPartCell[0].Colour}"
+                return strText
+            else:
+                return color
+
 
         # start
         if not sheetpage == {}:
@@ -251,6 +281,22 @@ def mainRun(xlsxName):
                                     consEnd=')'
                                 )
                             )
+                        # Color
+                        if (workBook.sheet.Range[f'{valueColomCell['cell']}{valueRowCell}'].Text and
+                            workBook.sheet.Range[f'{valueColomCell['cell']}{valueRowCell}'].Text.find('P-') == -1 and 
+                            workBook.sheet.Range[f'{valueColomCell['cell']}{valueRowCell}'].Text.find('=') == -1 and
+                            workBook.sheet.Range[f'{valueColomCell['color']}{valueRowCell}'].Text
+                            ):
+                            workBook.editText(
+                                cell=f"{valueColomCell['color']}{valueRowCell}",
+                                text=ReplacementColorCellPartPageColom(
+                                    BomID=xlsxName,
+                                    group=valueColomCell['group'],
+                                    partno=workBook.sheet.Range[f'{valueColomCell['cell']}{valueRowCell}'].Text,
+                                    FS=workBook.sheet.Range[f'{valueColomCell['FS']}{valueRowCell}'].Text,
+                                    color=workBook.sheet.Range[f'{valueColomCell['color']}{valueRowCell}'].Text
+                                )
+                            )
                         # Fromula
                         if workBook.sheet.Range[f'{valueColomCell['cell']}{valueRowCell}'].Text.find('P-') != -1:
                             workBook.editText(
@@ -260,6 +306,7 @@ def mainRun(xlsxName):
                                     FormulaCode=workBook.sheet.Range[f'{valueColomCell['cell']}{valueRowCell}'].Text
                                 )
                             )
+                    
 
     ColomFromula()
     ColomReplace()
