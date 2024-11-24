@@ -56,10 +56,14 @@ typeSheetPage3 = {
         {
         'group':'OUTER',
         'cell':'U',
+        'qtyUnit':'Y',
         'qty':'Z',
+        'remark':'AB',
         'weight':'AF',
         'FS':'',
         'color':'',
+        'length':'X',
+        'description':'R',
         'listCell':['R','S','T','U','v','W','X','Y','Z','AA','AB','AC','AD','AE','AF']
         },
     ],
@@ -69,10 +73,14 @@ typeSheetPage3 = {
         {
         'group':'OUTER',
         'cell':'AK',
+        'qtyUnit':'AO',
         'qty':'AP',
+        'remark':'AR',
         'weight':'',
         'FS':'AV',
         'color':'AN',
+        'length':'',
+        'description':'AH',
         'listCell':['AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV']
         },
     ],
@@ -85,19 +93,27 @@ typeSheetPage5 = {
         {
         'group':'OUTER',
         'cell':'U',
+        'qtyUnit':'Y',
         'qty':'Z',
+        'remark':'AB',
         'weight':'AF',
         'FS':'',
         'color':'',
+        'length':'X',
+        'description':'R',
         'listCell':['R','S','T','U','v','W','X','Y','Z','AA','AB','AC','AD','AE','AF']
         },
         {
         'group':'INNER',
         'cell':'AK',
+        'qtyUnit':'AO',
         'qty':'AP',
+        'remark':'AS',
         'weight':'AV',
         'FS':'',
         'color':'',
+        'length':'AN',
+        'description':'AH',
         'listCell':['AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV']
         },
     ],
@@ -107,19 +123,27 @@ typeSheetPage5 = {
         {
         'group':'OUTER',
         'cell':'BA',
+        'qtyUnit':'BE',
         'qty':'BF',
+        'remark':'BH',
         'weight':'',
         'FS':'BL',
         'color':'BD',
+        'length':'',
+        'description':'AX',
         'listCell':['AX','AY','AZ','BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL']
         },
         {
         'group':'INNER',
         'cell':'BQ',
+        'qtyUnit':'BU',
         'qty':'BV',
+        'remark':'BX',
         'weight':'',
         'FS':'CB',
         'color':'BT',
+        'length':'',
+        'description':'BN',
         'listCell':['BN','BO','BP','BQ','BR','BS','BT','BU','BV','BW','BX','BY','BZ','CA','CB']
         },
     ],
@@ -204,6 +228,21 @@ def mainRun(xlsxName):
             except:
                 return '$FAIL$'
             
+        def ReplacementFromLengthColom(value):
+            operasiMath = ['+','-']
+            if(value):
+                hasOprasiMath = False
+                for valOperasiMath in operasiMath:
+                    if value.find(valOperasiMath) != -1:
+                        hasOprasiMath = True
+
+                if hasOprasiMath:
+                    return value.replace("=","'=(") + ")"
+                else:
+                    return "'"+value
+            else:
+                return value
+            
         def ReplacementFromulaCellColom(BomID,FormulaCode):
             dbShiage = shiage()
             getDataFromulaCell = dbShiage.GetMadelaFormulaBom(
@@ -231,14 +270,31 @@ def mainRun(xlsxName):
                 return strText
             else:
                 return color
+            
+        def ReplacementHoldCellPartColom(ArrayColom):
+            result = []
+            for valArrayColom in ArrayColom:
+                if(ArrayColom.index(valArrayColom) == 0):
+                    for valueValArrayColom in valArrayColom:
+                        valueWorkBook = valueValArrayColom['value']
+                        if valueValArrayColom['cellColom'] == valueValArrayColom['qty']:
+                            valueWorkBook = "'"+valueValArrayColom['value']
+                        workBook.sheet.Range[f'{valueValArrayColom["cell"]}'].Text = valueWorkBook
+                else:
+                    result.append(valArrayColom)
+            return result
+        
 
-
+                    
         # start
         if not sheetpage == {}:
             # fabrication
+            emptyColsFabrication = []
+            toFillEmptyColsFabrication = []
             for valueColomCell in sheetpage['fabricationColom']:
                 for valueRowCell in range(sheetpage['fabricationRowFrom'],sheetpage['fabricationRowTo']):
                     if not workBook.sheet.Range[f'{valueColomCell['cell']}{valueRowCell}'].Text:
+                        emptyColsFabrication.append(valueRowCell)
                         for valueListCell in valueColomCell['listCell']:
                             workBook.editText(cell=f"{valueListCell}{valueRowCell}",text="")
                     else:
@@ -262,12 +318,21 @@ def mainRun(xlsxName):
                                     consEnd=')'
                                 )
                             )
-                            
-                        
+                        # length
+                        if workBook.sheet.Range[f'{valueColomCell['length']}{valueRowCell}'].Text:
+                            workBook.editText(
+                                cell=f"{valueColomCell['length']}{valueRowCell}",
+                                text=ReplacementFromLengthColom(
+                                    value=workBook.sheet.Range[f'{valueColomCell['length']}{valueRowCell}'].Text
+                                )
+                            )
             # part
+            emptyColsPart = []
+            toFillEmptyColsPart = []
             for valueColomCell in sheetpage['partColom']:
                 for valueRowCell in range(sheetpage['partRowFrom'],sheetpage['partRowTo']):
                     if not workBook.sheet.Range[f'{valueColomCell['cell']}{valueRowCell}'].Text:
+                        emptyColsPart.append(valueRowCell)
                         for valueListCell in valueColomCell['listCell']:
                             workBook.editText(cell=f"{valueListCell}{valueRowCell}",text="")
                     else:
@@ -306,8 +371,53 @@ def mainRun(xlsxName):
                                     FormulaCode=workBook.sheet.Range[f'{valueColomCell['cell']}{valueRowCell}'].Text
                                 )
                             )
-                    
+                        # Hold Cap Split function
+                        if workBook.sheet.Range[f'{valueColomCell['description']}{valueRowCell}'].Text.find('HOLE') != -1:
+                            splitArrayCol = [] 
+                            qtyUnitTxtArray = workBook.sheet.Range[f'{valueColomCell['qtyUnit']}{valueRowCell}'].Text.split('+IF')
+                            
+                            if(len(qtyUnitTxtArray) > 1):
+                                for valueQtyUnitTxt in qtyUnitTxtArray:
+                                    arrayCol = []
+                                    if not valueQtyUnitTxt.find("=") : 
+                                        qtyUnitTxt = "'"+valueQtyUnitTxt 
+                                    else: 
+                                        qtyUnitTxt = "'=IF"+valueQtyUnitTxt
 
+                                    for valueListCell in valueColomCell['listCell']:
+                                        if(valueListCell == valueColomCell['qtyUnit']):
+                                            valueArray = qtyUnitTxt
+                                        else:
+                                            valueArray = workBook.sheet.Range[f'{valueListCell}{valueRowCell}'].Text
+
+                                            remarkTxtArray = workBook.sheet.Range[f'{valueColomCell['remark']}{valueRowCell}'].Text.split(', ')
+                                            if (len(remarkTxtArray) == len(qtyUnitTxtArray) and valueListCell == valueColomCell['remark']):
+                                                valueArray=remarkTxtArray[qtyUnitTxtArray.index(valueQtyUnitTxt)]
+                                       
+
+                                        arrayCol.append({
+                                            'cell':f'{valueListCell}{valueRowCell}',
+                                            'cellColom':f'{valueListCell}',
+                                            'qty':valueColomCell['qty'],
+                                            'value':valueArray
+                                        })
+
+                                    if len(arrayCol):
+                                        splitArrayCol.append(arrayCol)
+                                
+                                toFillEmptyColsPart.extend(ReplacementHoldCellPartColom(splitArrayCol))
+            # add empty row
+            if len(toFillEmptyColsPart):
+                for valToFillEmptyColsPart in toFillEmptyColsPart:
+                    row = emptyColsPart[0]
+                    emptyColsPart = emptyColsPart[1:]
+                    for valValToFillEmptyColsPart in valToFillEmptyColsPart:
+                        valueWorkBook = valValToFillEmptyColsPart['value']
+                        if valValToFillEmptyColsPart['cellColom'] == valValToFillEmptyColsPart['qty']:
+                            valueWorkBook = "'"+f'''=IF({valValToFillEmptyColsPart['cellColom']}{row}<0.1,"''' + f'''",(Q*{valValToFillEmptyColsPart['cellColom']}{row}))'''
+                        workBook.sheet.Range[f'{valValToFillEmptyColsPart['cellColom']}{row}'].Text = valueWorkBook
+                    
+                    
     ColomFromula()
     ColomReplace()
     ColomEmptyANDFixFromula()
