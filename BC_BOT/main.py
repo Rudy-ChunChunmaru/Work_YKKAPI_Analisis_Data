@@ -1,0 +1,21 @@
+from web_control import WebControlBC
+
+webControl = WebControlBC('https://businesscentral.dynamics.com/YKK')
+webControl.clickWeb(by='id',value='c-shellmenu_custom_button_outline_newtab_signin_bhvr100_right')
+webControl.switchToSecondWeb()
+webControl.inputWeb(by='name',value='loginfmt',inputValue='admin@ykkapindonesia.onmicrosoft.com')
+webControl.clickWeb(by='id',value='idSIButton9')
+webControl.inputWeb(by='name',value='passwd',inputValue='88{aW<5%)T')
+webControl.clickWeb(by='id',value='idSIButton9')
+webControl.clickWeb(by='id',value='idSIButton9')
+webControl.clickWeb(by='classSelector',value='#apps-module-banner > div:nth-child(2) > button:nth-child(1)')
+webControl.clickWeb(by='classSelector',value='div.___11eoy74:nth-child(3)')
+webControl.switchToSecondWeb()
+webControl.clickWeb(by='classSelector',value='.product-name')
+webControl.clickWeb(by='classSelector',value='.environmentPickerButton--lPstm2EbOaZnwaOHZEcU')
+webControl.clickWeb(by='classSelector',value='.product-name')
+
+webControl.clickWeb(by='classSelector',value='.ms-Button')
+webControl.driver.find_element_by_xpath(webControl.__byIndexSelect('classSelector'),'#GroupedListSection1038 > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)')
+webControl.clickWeb(by='id',value='id__1042')
+webControl.clickWeb(by='classSelector',value='.product-name')
