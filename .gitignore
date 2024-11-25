@@ -1,8 +1,10 @@
 /.venv/
 
-/Madela_Template_BC/__pycache__/
-/Madela_Template_BC/Madela_Template/
-/Madela_Template_BC/Proses_Madela_Template/
+/template/__pycache__/
+/bot/__pycache__/
 
-/BC_BOT/__pycache__/
+/data/madela_template/
+/data/Proses_Madela_Template/
+
+
 
