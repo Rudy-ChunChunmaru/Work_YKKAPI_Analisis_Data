@@ -1,0 +1,3 @@
+pyodbc
+Spire.XLS
+selenium
