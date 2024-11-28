@@ -33,6 +33,29 @@ class Database_Shiage:
         self.cursor.execute(SQL_QUERY)
         return self.cursor.fetchall()
     
+    def GetMadelaManufactruingBom(self,strWhere=None,strOrderBy=None):
+        SQL_QUERY = """
+        SELECT 
+        * 
+        from 
+        YKK_AP.dbo.MADELA_MANUFACTURINGLIST_MSTDTL_BOM 
+        """
+
+        if(strWhere):
+            SQL_QUERY += f"""
+                where 
+                {strWhere}
+            """
+
+        if(strOrderBy):
+            SQL_QUERY += f"""
+                order by 
+                {strOrderBy}
+            """
+
+        self.cursor.execute(SQL_QUERY)
+        return self.cursor.fetchall()
+    
     def GetMadelaPartBom(self,strWhere=None,strOrderBy=None):
         SQL_QUERY = """
         SELECT 
@@ -55,3 +78,6 @@ class Database_Shiage:
 
         self.cursor.execute(SQL_QUERY)
         return self.cursor.fetchall()
+    
+
+    
