@@ -3,9 +3,10 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
-
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
+
 
 class WebControlBC:
     def __init__(self,adderess,valueWait=10) -> None:
@@ -35,6 +36,13 @@ class WebControlBC:
             self.wait.until(EC.element_to_be_clickable((elementIndex, value))).send_keys(f'{inputValue}').send_keys(Keys.RETURN)
         except:
             print(f'Error:To find elemnet !!! ({by}:{value})')
+
+    def redirectWeb(self,value):
+        try:
+            self.driver.get(value)
+            self.switchToSecondWeb()
+        except:
+            print(f'Error:Redirect web !!! ({value})')
 
 
     def sciprtWeb(self,by,value):

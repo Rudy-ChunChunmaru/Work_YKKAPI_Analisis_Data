@@ -1,4 +1,4 @@
-listXlsx = [
+madela_template = [
 10001,
 10002,
 10003,
@@ -205,7 +205,7 @@ listXlsx = [
 
 
 
-listXlsxRudy = [
+madela_template_rudy = [
 # 10001,
 # 10002,
 # 10003,
@@ -306,3 +306,8 @@ listXlsxRudy = [
 10188,
 10189
 ]
+
+class data:
+    def __init__(self):
+        self.listXlsx = madela_template
+        self.listXlsxRudy = madela_template_rudy

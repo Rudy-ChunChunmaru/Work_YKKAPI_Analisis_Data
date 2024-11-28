@@ -1,11 +1,11 @@
-from read_proses import ReadFormulaXlsx as rfx, CopyWorkBook as cwb
-from database import Database_Shiage as shiage
-from data import listXlsx,listXlsxRudy
+from template.read_proses import ReadFormulaXlsx as rfx, CopyWorkBook as cwb
+from database.db_shiage import Database_Shiage as shiage
+from data.data import data
 
-pathToGet = './Madela_Template/'
-pathToSave = './Proses_Madela_Template/'
-listXlsx = listXlsxRudy
-
+pathToGet = './data/Madela_Template/'
+pathToSave = './data/Proses_Madela_Template/'
+dataTemplate=data()
+listXlsx = dataTemplate.listXlsxRudy
 
 CellNotForReplaceFromula = [
     # colom page
@@ -398,6 +398,7 @@ def mainRun(xlsxName):
                                         arrayCol.append({
                                             'cell':f'{valueListCell}{valueRowCell}',
                                             'cellColom':f'{valueListCell}',
+                                            'qtyUnit':valueColomCell['qtyUnit'],
                                             'qty':valueColomCell['qty'],
                                             'value':valueArray
                                         })
@@ -414,7 +415,7 @@ def mainRun(xlsxName):
                     for valValToFillEmptyColsPart in valToFillEmptyColsPart:
                         valueWorkBook = valValToFillEmptyColsPart['value']
                         if valValToFillEmptyColsPart['cellColom'] == valValToFillEmptyColsPart['qty']:
-                            valueWorkBook = "'"+f'''=IF({valValToFillEmptyColsPart['cellColom']}{row}<0.1,"''' + f'''",(Q*{valValToFillEmptyColsPart['cellColom']}{row}))'''
+                            valueWorkBook = "'"+f'=IF({valValToFillEmptyColsPart['qtyUnit']}{row}="",""' + f',(Q*{valValToFillEmptyColsPart['qtyUnit']}{row}))'
                         workBook.sheet.Range[f'{valValToFillEmptyColsPart['cellColom']}{row}'].Text = valueWorkBook
                     
                     
