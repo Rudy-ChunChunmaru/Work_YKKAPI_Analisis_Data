@@ -10,10 +10,10 @@ class Database_Shiage:
         self.conn = pyodbc.connect(self.connectionString)
         self.cursor = self.conn.cursor()
 
-    def GetMadelaFormulaBom(self,strWhere=None,strOrderBy=None):
-        SQL_QUERY = """
+    def GetMadelaFormulaBom(self,strSelect='*',strWhere=None,strOrderBy=None):
+        SQL_QUERY = f"""
         SELECT 
-        * 
+        {strSelect} 
         from 
         YKK_AP.dbo.MADELA_MASTER_FORMULA 
         """
@@ -33,10 +33,10 @@ class Database_Shiage:
         self.cursor.execute(SQL_QUERY)
         return self.cursor.fetchall()
     
-    def GetMadelaManufactruingBom(self,strWhere=None,strOrderBy=None):
-        SQL_QUERY = """
+    def GetMadelaManufactruingBom(self,strSelect='*',strWhere=None,strOrderBy=None):
+        SQL_QUERY = f"""
         SELECT 
-        * 
+        {strSelect}
         from 
         YKK_AP.dbo.MADELA_MANUFACTURINGLIST_MSTDTL_BOM 
         """
@@ -56,12 +56,59 @@ class Database_Shiage:
         self.cursor.execute(SQL_QUERY)
         return self.cursor.fetchall()
     
-    def GetMadelaPartBom(self,strWhere=None,strOrderBy=None):
-        SQL_QUERY = """
+    def GetMadelaPartBom(self,strSelect='*',strWhere=None,strOrderBy=None):
+        SQL_QUERY = f"""
         SELECT 
-        * 
+        {strSelect}
         from 
         YKK_AP.dbo.MADELA_PARTLIST_MSTDTL_BOM 
+        """
+
+        if(strWhere):
+            SQL_QUERY += f"""
+                where 
+                {strWhere}
+            """
+
+        if(strOrderBy):
+            SQL_QUERY += f"""
+                order by 
+                {strOrderBy}
+            """
+
+        self.cursor.execute(SQL_QUERY)
+        return self.cursor.fetchall()
+    
+
+    def GetManufactruingListDetail(self,strSelect='*',strWhere=None,strOrderBy=None):
+        SQL_QUERY = f"""
+        SELECT 
+        {strSelect}
+        from 
+        YKK_AP.dbo.MANUFACTURINGLIST_MSTDTL 
+        """
+
+        if(strWhere):
+            SQL_QUERY += f"""
+                where 
+                {strWhere}
+            """
+
+        if(strOrderBy):
+            SQL_QUERY += f"""
+                order by 
+                {strOrderBy}
+            """
+
+        self.cursor.execute(SQL_QUERY)
+        return self.cursor.fetchall()
+    
+    def GetPartListDetail(self,strSelect='*',strWhere=None,strOrderBy=None):
+        SQL_QUERY = f"""
+        SELECT 
+        {strSelect}
+        from 
+        YKK_AP.dbo.PARTLIST_MSTDTL 
         """
 
         if(strWhere):
