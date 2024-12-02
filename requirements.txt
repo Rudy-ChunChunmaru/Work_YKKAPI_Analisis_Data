@@ -1,3 +1,5 @@
 pyodbc
+pandas
+openpyxl
 Spire.XLS
 selenium

@@ -26,8 +26,6 @@ class ReadFormulaXlsx:
 
 
 class CopyWorkBook:
-
-    
     def __init__(self,pathToGet,xlsxName):
         self.xlsxName = xlsxName
         # old deworkbook
@@ -37,10 +35,16 @@ class CopyWorkBook:
         self.deSheetName = self.deSheet.Name
         # new workbook
         self.workbook = Workbook()
-        self.sheet = self.workbook.Worksheets.Add(self.__switsSheetNameFix())
-        self.sheet.CopyFrom(self.deSheet)
         #close deworkbook
         self.deWorkbook.Dispose()
+
+    def addNewSheet(self,namesheet=None,copySheet=None):
+        if namesheet != None and copySheet != None:
+            self.sheet = self.workbook.Worksheets.Add(namesheet)
+            self.sheet.CopyFrom(copySheet)
+        else:
+            self.sheet = self.workbook.Worksheets.Add(self.__switsSheetNameFix())
+            self.sheet.CopyFrom(self.deSheet)
 
     def __switsSheetNameFix(self,start='FIX_',end='_FIX',hasStart=False,hasEnd=False):
         if self.deSheetName.find(start) != -1:

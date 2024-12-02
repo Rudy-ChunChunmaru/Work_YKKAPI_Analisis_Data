@@ -149,13 +149,13 @@ typeSheetPage5 = {
     ],
 }
    
-
 # TODO-MAIN:
 def mainRun(xlsxName):
     prosesFormula = rfx(pathToGet=pathToGet,xlsxName=xlsxName)
     prosesFormula.findFormula()
     dataSheet = prosesFormula.sheet
     workBook = cwb(pathToGet=pathToGet,xlsxName=xlsxName)
+    workBook.addNewSheet()
     listFormula = prosesFormula.fromulaList
     listCellHasFromula = [valueListFromula['cell'] for valueListFromula in listFormula]
     dataHeaderSheet = []
