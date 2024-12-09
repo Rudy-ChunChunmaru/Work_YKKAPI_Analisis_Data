@@ -26,26 +26,55 @@ def AOFilter(colomBom):
         resultFilter_dfAO = resultFilter_dfAO[
             (resultFilter_dfAO['Product Type Madela'] == colomBom['ProductCode'])
         ]
-    if colomBom['Spec1'] != 'nan':
-        resultFilter_dfAO = resultFilter_dfAO[
-            (resultFilter_dfAO['Spec 2'] == colomBom['Spec1'])
-        ]
-    if colomBom['Spec2'] != 'nan':
-        resultFilter_dfAO = resultFilter_dfAO[
-            (resultFilter_dfAO['Option 2'] == colomBom['Spec2'].upper())
-        ]
+    if('door' in colomBom['ProductCode'].lower()):
+        if colomBom['Spec1'] != 'nan':
+            resultFilter_dfAO = resultFilter_dfAO[
+                (resultFilter_dfAO['Spec 2'] == colomBom['Spec1'])
+            ]
+
+        if colomBom['Spec2'] != 'nan':
+            resultFilter_dfAO = resultFilter_dfAO[
+                (resultFilter_dfAO['Spec 3'] == colomBom['Spec2'])
+            ]
+
+        if colomBom['Spec3'] != 'nan':
+            resultFilter_dfAO = resultFilter_dfAO[
+                (resultFilter_dfAO['Spec 4'] == colomBom['Spec3'])
+            ]
+    elif('t-ml' in colomBom['ProductCode'].lower()):
+        if colomBom['Spec3'] != 'nan':
+            resultFilter_dfAO = resultFilter_dfAO[
+                (resultFilter_dfAO['Spec 4'] == colomBom['Spec3'].upper())
+            ]
+        else:
+            resultFilter_dfAO = resultFilter_dfAO[
+                (resultFilter_dfAO['Spec 4'] == 'none'.upper())
+            ]
     else:
-        resultFilter_dfAO = resultFilter_dfAO[
-            (resultFilter_dfAO['Option 2'] == 'none'.upper())
-        ]
-    if colomBom['Spec3'] != 'nan':
-        resultFilter_dfAO = resultFilter_dfAO[
-            (resultFilter_dfAO['Option 3'] == colomBom['Spec3'].upper())
-        ]
-    else:
-        resultFilter_dfAO = resultFilter_dfAO[
-            (resultFilter_dfAO['Option 3'] == 'none'.upper())
-        ]
+        if colomBom['Spec1'] != 'nan':
+            resultFilter_dfAO = resultFilter_dfAO[
+                (resultFilter_dfAO['Spec 2'] == colomBom['Spec1'])
+            ]
+
+        if colomBom['Spec2'] != 'nan':
+            resultFilter_dfAO = resultFilter_dfAO[
+                (resultFilter_dfAO['Option 2'] == colomBom['Spec2'].upper())
+            ]
+        else:
+            resultFilter_dfAO = resultFilter_dfAO[
+                (resultFilter_dfAO['Option 2'] == 'none'.upper())
+            ]
+
+        if colomBom['Spec3'] != 'nan':
+            resultFilter_dfAO = resultFilter_dfAO[
+                (resultFilter_dfAO['Option 3'] == colomBom['Spec3'].upper())
+            ]
+        else:
+            resultFilter_dfAO = resultFilter_dfAO[
+                (resultFilter_dfAO['Option 3'] == 'none'.upper())
+            ]
+
+
     resultFilter_dfAO.sort_values(by='Description', ascending = False, inplace = True) 
     return resultFilter_dfAO
 
@@ -92,12 +121,12 @@ def getDataFromDataBase(Order_No,Item_No):
     ManufactruingList = dbShiage.GetManufactruingListDetail(
         strSelect=strSelectManufactruing,
         strWhere=f" Order_No ='{Order_No}' AND Item_No='{Item_No}'",
-        strOrderBy=f" FabricationNo ASC,Length ASC;"
+        strOrderBy=f" FabricationNo ASC,Unit_Code ASC,Length ASC;"
     )
     PartList = dbShiage.GetPartListDetail(
         strSelect=strSelectPart,
         strWhere=f" Order_No ='{Order_No}' AND Item_No='{Item_No}'",
-        strOrderBy=f" PartNo ASC,QTYUnit ASC;"
+        strOrderBy=f" PartNo ASC,Unit_Code ASC,QTYUnit ASC;"
     )
     if(len(ManufactruingList) < 1 and len(PartList) < 1):
         status = False
@@ -146,44 +175,62 @@ while True:
                 print(dataAO.groupby(['Line No.'])['Line No.'].count())
                 while True:
                     AONumber = input('pilih nomor AO yang mau di pakai \n NumberAO=')
-                    if (len(dfAOBOM[(dfAOBOM['AO'] == AONumber)].index) == 0):
+                    if (AONumber == ''):
                         break
-                result_dfAO = dataAO[(dataAO['Line No.'] == AONumber)]
-                if result_dfAO.iloc[0].any() == False:
-                    print('Pilihan AO Salah !!!\n')
+                    else:
+                        if (len(dfAOBOM[(dfAOBOM['AO'] == AONumber)].index) == 0):
+                            break
+                        else:
+                            continue
+                if(AONumber == ''):
                     continue
                 else:
-                    Order_No = result_dfAO.iloc[0]['Cost/Pcs']
-                    Item_No = result_dfAO.iloc[0]['Order Seq No.']
-                    resultBD = getDataFromDataBase(Order_No=Order_No,Item_No=Item_No)
-                    if resultBD['status'] == False:
-                        print('selected data error !!!\n')
+                    result_dfAO = dataAO[(dataAO['Line No.'] == AONumber)]
+                    if len(result_dfAO.index) == 0:
+                        print('Pilihan AO Salah !!!\n')
                         continue
                     else:
-                        workBook.addNewSheet(copySheet=workBook.deSheet,namesheet=f'{objBom['BOM_ID']}_{objBom['ProductCode']}')
-                        workBook.sheet.Range[f'A1'].Text = AONumber
-                        workBook.sheet.Range[f'B1'].Text = Order_No
-                        workBook.sheet.Range[f'C1'].Text = Item_No
-                        ManufactruingList = resultBD['ManufactruingList']
-                        PartList = resultBD['PartList']
-                        for row in range(excelColom["shiageManufactruing"]["rowStart"],excelColom["shiageManufactruing"]["rowEnd"]):
-                            if len(ManufactruingList) > 0:
-                                Manufactruing = ManufactruingList[0]
-                                ManufactruingList = ManufactruingList[1:]
-                                for col in excelColom["shiageManufactruing"]["colom"]:
-                                    value =  Manufactruing[0]
-                                    Manufactruing = Manufactruing[1:]
-                                    workBook.sheet.Range[f'{col}{row}'].Text = str(value).strip()
-                        for row in range(excelColom["shiagePart"]["rowStart"],excelColom["shiagePart"]["rowEnd"]):
-                            if len(PartList) > 0:
-                                Part = PartList[0]
-                                PartList = PartList[1:]
-                                for col in excelColom["shiagePart"]["colom"]:
-                                    value =  Part[0]
-                                    Part = Part[1:]
-                                    workBook.sheet.Range[f'{col}{row}'].Text = str(value).strip()
+                        Order_No = result_dfAO.iloc[0]['Cost/Pcs']
+                        Item_No = result_dfAO.iloc[0]['Order Seq No.']
+                        resultBD = getDataFromDataBase(Order_No=Order_No,Item_No=Item_No)
+                        if resultBD['status'] == False:
+                            print('selected data error !!!\n')
+                            continue
+                        else:
+                            workBook.addNewSheet(copySheet=workBook.deSheet,namesheet=f'{objBom['BOM_ID']}_{objBom['ProductCode']}')
+                            workBook.sheet.Range[f'A1'].Text = AONumber
+                            workBook.sheet.Range[f'B1'].Text = Order_No
+                            workBook.sheet.Range[f'C1'].Text = Item_No
+                            ManufactruingList = resultBD['ManufactruingList']
+                            PartList = resultBD['PartList']
+                            for row in range(excelColom["shiageManufactruing"]["rowStart"],excelColom["shiageManufactruing"]["rowEnd"]):
+                                if len(ManufactruingList) > 0:
+                                    Manufactruing = ManufactruingList[0]
+                                    ManufactruingList = ManufactruingList[1:]
+                                    ColomNumber = ['AA','AB','AC']
+                                    for col in excelColom["shiageManufactruing"]["colom"]:
+                                        value =  Manufactruing[0]
+                                        Manufactruing = Manufactruing[1:]
+                                        if col not in ColomNumber:
+                                            workBook.sheet.Range[f'{col}{row}'].Text = str(value).strip()
+                                        else:
+                                            workBook.sheet.Range[f'{col}{row}'].Number = str(value).strip()
+                            for row in range(excelColom["shiagePart"]["rowStart"],excelColom["shiagePart"]["rowEnd"]):
+                                if len(PartList) > 0:
+                                    Part = PartList[0]
+                                    PartList = PartList[1:]
+                                    ColomNumber = ['AA','AB']
+                                    for col in excelColom["shiagePart"]["colom"]:
+                                        value =  Part[0]
+                                        Part = Part[1:]
+                                        if col not in ColomNumber:
+                                            workBook.sheet.Range[f'{col}{row}'].Text = str(value).strip()
+                                        else:
+                                            workBook.sheet.Range[f'{col}{row}'].Number = str(value).strip()
                         
-                        dfAOBOM.loc[lastindexAOBOM]={'AO': AONumber, 'BOM_ID': Bom_ID}
+                            dfAOBOM.loc[lastindexAOBOM]={'AO': AONumber, 'BOM_ID': Bom_ID}
+                            lastindexAOBOM = lastindexAOBOM + 1
 
-dfAOBOM.to_excel('./data/AO_and_BOM/AO-BOM.xlsx')
+
+dfAOBOM.to_excel('./data/AO_and_BOM/AO-BOM.xlsx',index=False)
 workBook.saveFile('./data/proses_AO_and_BOM/')
