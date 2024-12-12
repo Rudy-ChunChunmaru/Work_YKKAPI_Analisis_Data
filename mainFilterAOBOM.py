@@ -181,6 +181,7 @@ while True:
                         if (len(dfAOBOM[(dfAOBOM['AO'] == AONumber)].index) == 0):
                             break
                         else:
+                            print(dfAOBOM[(dfAOBOM['AO'] == AONumber)])
                             continue
                 if(AONumber == ''):
                     continue
