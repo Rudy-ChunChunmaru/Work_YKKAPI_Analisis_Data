@@ -11,13 +11,12 @@ def printTitle():
     print(chr(27) + "[2J" + "\n")
     print(chr(27) + "[2J" + "\n")
     print(chr(27) + "[2J" + "\n")
-    print("""
-        ___  __            _____    ____    _____  _    _   _____  _____ 
-        |  \/  |    /\    |  __ \  / __ \  / ____|| |  | | / ____||_   _|
-        | \  / |   /  \   | |  | || |  | || |  __ | |  | || |       | |  
-        | |\/| |  / /\ \  | |  | || |  | || | |_ || |  | || |       | |  
-        | |  | | / ____ \ | |__| || |__| || |__| || |__| || |____  _| |_ 
-        |_|  |_|/_/    \_\|_____/  \____/  \_____| \____/  \_____||_____|
+    print(r"""
+  ____   _   _  ___     _     ____  _____    ____    ____    ____ 
+ / ___| | | | ||_ _|   / \   / ___|| ____|  / /\ \  | __ )  / ___|
+ \___ \ | |_| | | |   / _ \ | |  _ |  _|   / /  \ \ |  _ \ | |    
+  ___) ||  _  | | |  / ___ \| |_| || |___  \ \  / / | |_) || |___ 
+ |____/ |_| |_||___|/_/   \_\\____||_____|  \_\/_/  |____/  \____|                                                           
     """)
 
 def getMadoguchiMaster(no_project):
@@ -32,7 +31,8 @@ def MenuProses():
     print('''
     PROSES DATABASE SINKRON SHIAGE BC
     1. GET MADOGUCHI
-    2. UPLOAD MADOGUCHI
+    2. UPLOAD MADLEA ONLINE TO SHIAGE
+    3. GET LIST BREAKDOWN
     ''')
     PDSSB = input('number proses data ?\n')
     if(PDSSB == '1'):
@@ -40,6 +40,9 @@ def MenuProses():
         return True
     elif(PDSSB == '2'):
         UploadMadoguchi()
+        return True
+    elif(PDSSB == '3'):
+        GetShiageBreakDown()
         return True
     else:
         if(PDSSB == ''):
@@ -50,6 +53,111 @@ def MenuProses():
 
 def GetMadoguchi():
     pass
+
+def GetShiageBreakDown():
+    formatArray = [
+        {
+            "no":'1',
+            "MANUFACTURINGLIST_MSTDTL":{"select":['*'],"OrderBy":""},
+            "PARTLIST_MSTDTL":{"select":['*'],"OrderBy":""}
+        },{
+            "no":'2',
+            "MANUFACTURINGLIST_MSTDTL":{
+                "select":[
+                    "Pageno",
+                    "ItemUnit",
+                    "Unit_Code",
+                    "Cls_IOM",
+                    "Description",
+                    "FabricationNo",
+                    "Color",
+                    "FabNo",
+                    "Length",
+                    "QTYUnit",
+                    "QTY",
+                    "Remark",
+                    "Remark2",
+                    "Remark3",
+                    "'' AS FS",
+                    "Weight_m",
+                    "Weight_kg"
+                ],
+                "OrderBy":" FabricationNo ASC,Unit_Code ASC,Length ASC;"
+            },
+            "PARTLIST_MSTDTL":{
+                "select":[
+                    "Pageno",
+                    "ItemUnit",
+                    "Unit_Code",
+                    "Cls_IOM",
+                    "Description",
+                    "Colour",
+                    "PartNo",
+                    "'' as Length",
+                    "QTYUnit",
+                    "QTY",
+                    "Remark",
+                    "Remark2",
+                    "Remark3",
+                    "Remark4",
+                    "Remark5",
+                    "FS"
+                ],
+                "OrderBy":" PartNo ASC,Unit_Code ASC,QTYUnit ASC;"
+            }
+        }
+    ]
+
+
+    def getValidasi(no_project,file_location):
+        status = True
+        if getMadoguchiMaster(no_project=no_project) == []:
+            status = False
+            print('Error no project not exists !!!')
+
+        if os.path.exists(file_location) == False :
+            status = False
+            print('Error cant find directroy !!! \n')
+
+        return status
+
+    def getProses(no_project,no_item,file_location,format,name_file):
+        dbShiage = shiage(database=DB)
+        status = True
+        getFormat = [formater for formater in formatArray if formater["no"] == format][0]
+        if getFormat == []:
+            print('format salah !!!')
+            status = False
+        
+        if status:
+            dataMaterial = dbShiage.GetManufactruingListDetail(strSelect=', '.join(getFormat["MANUFACTURINGLIST_MSTDTL"]["select"]),strWhere=f" project_no='{no_project}' AND Item_No LIKE '%{no_item}%' ",strOrderBy=getFormat["MANUFACTURINGLIST_MSTDTL"]["OrderBy"])
+            dataPart = dbShiage.GetPartListDetail(strSelect=', '.join(getFormat["PARTLIST_MSTDTL"]["select"]),strWhere=f" project_no='{no_project}' AND Item_No LIKE '%{no_item}%' ",strOrderBy=getFormat["PARTLIST_MSTDTL"]["OrderBy"])
+            print(getFormat["MANUFACTURINGLIST_MSTDTL"]["select"])
+            print(getFormat["PARTLIST_MSTDTL"]["select"])
+            
+            pd.DataFrame({
+              f'{getFormat["MANUFACTURINGLIST_MSTDTL"]["select"][keyformatselect]}':[valData[keyformatselect] for valData in dataMaterial] for keyformatselect in range(len(getFormat["MANUFACTURINGLIST_MSTDTL"]["select"]))
+            }).to_excel(file_location + name_file +'_MANUFACTURINGLIST'+'.xlsx',sheet_name="MANUFACTURINGLIST",index=False)
+
+            pd.DataFrame({
+              f'{getFormat["PARTLIST_MSTDTL"]["select"][keyformatselect]}':[valData[keyformatselect] for valData in dataPart] for keyformatselect in range(len(getFormat["PARTLIST_MSTDTL"]["select"]))
+            }).to_excel(file_location + name_file +'_PARTLIST'+ '.xlsx',sheet_name="PARTLIST",index=False)
+            
+        return status
+
+    while True:
+        printTitle()
+        no_project = input('no project = ')
+        no_item = input('no_item = ')
+        file_location = input('file location csv file to save=')
+        name_file = input('name_file=')
+        format = input('format get =')
+        if(no_project=='' or file_location=='' or format=='' or name_file==''):
+            break
+        else:
+            if getValidasi(no_project,file_location):
+                if getProses(no_project,no_item,file_location,format,name_file):
+                    break
 
 def UploadMadoguchi():
     def UploadValidasi(no_project,file_location):
@@ -268,7 +376,7 @@ def UploadMadoguchi():
     while True:
         printTitle()
         no_project = input('add new no project = ')
-        file_location = input('file location xlsx file =')
+        file_location = input('file location csv file =')
         if(no_project=='' or file_location==''):
             break
         else:
