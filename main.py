@@ -132,16 +132,14 @@ def GetShiageBreakDown():
         if status:
             dataMaterial = dbShiage.GetManufactruingListDetail(strSelect=', '.join(getFormat["MANUFACTURINGLIST_MSTDTL"]["select"]),strWhere=f" project_no='{no_project}' AND Item_No LIKE '%{no_item}%' ",strOrderBy=getFormat["MANUFACTURINGLIST_MSTDTL"]["OrderBy"])
             dataPart = dbShiage.GetPartListDetail(strSelect=', '.join(getFormat["PARTLIST_MSTDTL"]["select"]),strWhere=f" project_no='{no_project}' AND Item_No LIKE '%{no_item}%' ",strOrderBy=getFormat["PARTLIST_MSTDTL"]["OrderBy"])
-            print(getFormat["MANUFACTURINGLIST_MSTDTL"]["select"])
-            print(getFormat["PARTLIST_MSTDTL"]["select"])
             
             pd.DataFrame({
               f'{getFormat["MANUFACTURINGLIST_MSTDTL"]["select"][keyformatselect]}':[valData[keyformatselect] for valData in dataMaterial] for keyformatselect in range(len(getFormat["MANUFACTURINGLIST_MSTDTL"]["select"]))
-            }).to_excel(file_location + name_file +'_MANUFACTURINGLIST'+'.xlsx',sheet_name="MANUFACTURINGLIST",index=False)
+            }).to_csv(file_location + name_file +'_MANUFACTURINGLIST'+'.csv',index=False)
 
             pd.DataFrame({
               f'{getFormat["PARTLIST_MSTDTL"]["select"][keyformatselect]}':[valData[keyformatselect] for valData in dataPart] for keyformatselect in range(len(getFormat["PARTLIST_MSTDTL"]["select"]))
-            }).to_excel(file_location + name_file +'_PARTLIST'+ '.xlsx',sheet_name="PARTLIST",index=False)
+            }).to_csv(file_location + name_file +'_PARTLIST'+'.csv',index=False)
             
         return status
 
