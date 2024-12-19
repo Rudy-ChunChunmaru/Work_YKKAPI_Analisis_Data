@@ -4,7 +4,6 @@ from database.db_shiage import Database_Shiage as shiage
 
 dfBOM = pd.read_excel('data/AO_and_BOM/BOM.xlsx')
 dfAO = pd.read_excel('data/AO_and_BOM/AO.xlsx')
-dfAOBOM = pd.read_excel('data/AO_and_BOM/AO-BOM.xlsx')
 
 def BomFilter(BOM_ID):
     return dfBOM[(dfBOM.BOM_ID == BOM_ID)]
@@ -79,7 +78,7 @@ def AOFilter(colomBom):
     return resultFilter_dfAO
 
 def getDataFromDataBase(Order_No,Item_No):
-    dbShiage = shiage()
+    dbShiage = shiage(database='YKK_AP')
     strSelectManufactruing = '''
         Pageno,
         ItemUnit,
@@ -151,7 +150,6 @@ excelColom = {
 
 # TODO-1 Start Proses:
 workBook = cwb(pathToGet='./data/AO_and_BOM/',xlsxName='template')
-lastindexAOBOM = len(dfAOBOM.index) + 1
 while True: 
     Bom_ID = input('masukan Bom ID \n BOM_ID=')
     if Bom_ID == '':
@@ -178,11 +176,13 @@ while True:
                     if (AONumber == ''):
                         break
                     else:
-                        if (len(dfAOBOM[(dfAOBOM['AO'] == AONumber)].index) == 0):
-                            break
-                        else:
-                            print(dfAOBOM[(dfAOBOM['AO'] == AONumber)])
+                        result_dfAO = dataAO[(dataAO['Line No.'] == AONumber)]
+                        if len(result_dfAO.index) == 0:
+                            print('Pilihan AO Salah !!!\n')
                             continue
+                        else:
+                            break
+                    
                 if(AONumber == ''):
                     continue
                 else:
@@ -198,7 +198,8 @@ while True:
                             print('selected data error !!!\n')
                             continue
                         else:
-                            workBook.addNewSheet(copySheet=workBook.deSheet,namesheet=f'{objBom['BOM_ID']}_{objBom['ProductCode']}')
+                            print(f'{objBom['BOM_ID']}_{objBom['ProductCode'].replace('/','_')}')
+                            workBook.addNewSheet(copySheet=workBook.deSheet,namesheet=f'{objBom['BOM_ID']}_{objBom['ProductCode'].replace('/','_')}')
                             workBook.sheet.Range[f'A1'].Text = AONumber
                             workBook.sheet.Range[f'B1'].Text = Order_No
                             workBook.sheet.Range[f'C1'].Text = Item_No
@@ -229,9 +230,5 @@ while True:
                                         else:
                                             workBook.sheet.Range[f'{col}{row}'].Number = str(value).strip()
                         
-                            dfAOBOM.loc[lastindexAOBOM]={'AO': AONumber, 'BOM_ID': Bom_ID}
-                            lastindexAOBOM = lastindexAOBOM + 1
-
-
-dfAOBOM.to_excel('./data/AO_and_BOM/AO-BOM.xlsx',index=False)
+                         
 workBook.saveFile('./data/proses_AO_and_BOM/')
