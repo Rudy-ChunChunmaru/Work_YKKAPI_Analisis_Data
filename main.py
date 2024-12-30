@@ -145,8 +145,8 @@ def GetShiageBreakDown():
 
     while True:
         printTitle()
-        no_project = input('no project = ')
-        no_item = input('no_item = ')
+        no_project = input('no project =')
+        no_item = input('no_item =')
         file_location = input('file location csv file to save=')
         name_file = input('name_file=')
         format = input('format get =')
@@ -228,141 +228,160 @@ def UploadMadoguchi():
         if status == False:
             print('Error no uploading InsertMadoguchiMaster !!!')
             
-        for index in range(0,len(df.index)):
-            dataMadoguchiDetail=[
-                f"N'{no_project}'",
-                f"N'{order_no}'",
-                f"{index+1}",
-                "1",
-                f"N'{df['ItemNo'].values[index]}'",
-                "N'AK'",
-                "N'MADELA'",
-                "N''",
-                "N'1'",
-                f"N'{df['ColorCode'].values[index]}'",
-                "N''",
-                f"{df['Width'].values[index]}",
-                f"{df['Height'].values[index]}",
-                f"{df['AlumuniumWeight'].values[index]}",
-                "N'SET'",
-                f"{df['Qty'].values[index]}",
-                f"{df['Qty'].values[index]}",
-                f"{df['Qty'].values[index]}",
-                "N'0'",
-                "N''",
-                "N'A'",
-                "N'1'",
-                "N'M2'",
-                "N'MA'",
-                f"'{datetime.now().date()}'",
-                "N''",
-                "0",
-                "N''",
-                "N''",
-                "0",
-                "N'interface'",
-                "'1900-01-01 00:00:00.000'",
-                "'1900-01-01 00:00:00.000'",
-                "'1900-01-01 00:00:00.000'",
-                "0",
-                "0",
-                "0",
-                "0",
-                "0",
-                "0",
-                "0",
-                "N'2'",
-                "N''"
-            ]
-            status = dbShiage.InsertMadoguchiDetail(dataMadoguchiDetail)
-            if status == False:
-                print('Error no uploading InsertMadoguchiDetail !!!')
-                break
+        if status:
+            for index in range(0,len(df.index)):
+                dataMadoguchiDetail=[
+                    f"N'{no_project}'",
+                    f"N'{order_no}'",
+                    f"{index+1}",
+                    "1",
+                    f"N'{df['ItemNo'].values[index]}'",
+                    "N'AK'",
+                    "N'MADELA'",
+                    "N''",
+                    "N'1'",
+                    f"N'{df['ColorCode'].values[index]}'",
+                    "N''",
+                    f"{df['Width'].values[index]}",
+                    f"{df['Height'].values[index]}",
+                    f"{df['AlumuniumWeight'].values[index]}",
+                    "N'SET'",
+                    f"{df['Qty'].values[index]}",
+                    f"{df['Qty'].values[index]}",
+                    f"{df['Qty'].values[index]}",
+                    "N'0'",
+                    "N''",
+                    "N'A'",
+                    "N'1'",
+                    "N'M2'",
+                    "N'MA'",
+                    f"'{datetime.now().date()}'",
+                    "N''",
+                    "0",
+                    "N''",
+                    "N''",
+                    "0",
+                    "N'interface'",
+                    "'1900-01-01 00:00:00.000'",
+                    "'1900-01-01 00:00:00.000'",
+                    "'1900-01-01 00:00:00.000'",
+                    "0",
+                    "0",
+                    "0",
+                    "0",
+                    "0",
+                    "0",
+                    "0",
+                    "N'2'",
+                    "N''"
+                ]
+                if status:
+                    status = dbShiage.InsertMadoguchiDetail(dataMadoguchiDetail)
+                    if status == False:
+                        print('Error no uploading InsertMadoguchiDetail !!!')
+                        break
                 
 
-            Spec_1=''
-            Spec_2=''
-            Spec_3=''
-            Spec_4=''
-            Spec_5=''
-            Ops_1='None'
-            Ops_2='None'
-            Ops_3='None'
-            Ops_4='None'
-            Ops_5='None'
-            if 'door' in df['ProductCode'].values[index].lower() :
-                Spec_1=df['Spec_1'].values[index]
-                Spec_2=df['Spec_2'].values[index]
-                Spec_3=df['Spec_3'].values[index]
-            elif 'T-ML' in df['ProductCode'].values[index].lower():
-                Spec_3=df['Spec_3'].values[index]
-            else:
-                Spec_1=df['Spec_1'].values[index]
-                Spec_2=df['Option_1'].values[index]
-                Spec_3=df['Option_2'].values[index].capitalize()
+                Spec_1=''
+                Spec_2=''
+                Spec_3=''
+                Spec_4=''
+                Spec_5=''
+                Ops_1='None'
+                Ops_2='None'
+                Ops_3='None'
+                Ops_4='None'
+                Ops_5='None'
+                if 'door' in df['ProductCode'].values[index].lower() :
+                    Spec_1=df['Spec_1'].values[index]
+                    if str(df['Spec_2'].values[index]) != 'nan':
+                        Spec_2=df['Spec_2'].values[index]
+                    if str(df['Spec_3'].values[index]) != 'nan':
+                        Spec_3=df['Spec_3'].values[index]
+                elif 't-ml' in df['ProductCode'].values[index].lower():
+                    Spec_3=df['Spec_3'].values[index]
+                elif (
+                    'th-kd' in df['ProductCode'].values[index].lower() or
+                    'cal-kd' in df['ProductCode'].values[index].lower() or
+                    'car-kd' in df['ProductCode'].values[index].lower()
+                ):
+                    Spec_1=df['Spec_1'].values[index]
+                    if str(df['Option_1'].values[index]) != 'nan':
+                        Spec_2=df['Option_1'].values[index]
+                    else:
+                        Spec_2='None'
+                    if str(df['Option_2'].values[index]) != 'nan':
+                        Spec_3=df['Option_2'].values[index].capitalize()
+                    else:
+                        Spec_3='None'
+                else:
+                    status = False
+                    print('Error type productcode !!!')
+                    break
                 
             
-            HandlePosition=df['Width'].values[index]
-            if(HandlePosition == 'nan'):
-                HandlePosition=''
+                HandlePosition=df['Width'].values[index]
+                if(str(HandlePosition) == 'nan'):
+                    HandlePosition=''
             
-            dataMadelaOrderWindowDetail =[
-                f"'{datetime.now().date()}'",
-                f"N'{order_no}'",
-                f"{index+1}",
-                f"N'{no_project}'",
-                f"N'{project_name}'",
-                "N'605401'",
-                "N'D01023'",
-                f"'{datetime.now().date()}'",
-                f"N'{df['ItemNo'].values[index]}'",
-                "N'JS03'",
-                f"N'{df['ColorCode'].values[index]}'",
-                f"{df['Width'].values[index]}",
-                f"{df['Height'].values[index]}",
-                f"{df['Qty'].values[index]}",
-                f"{df['AlumuniumWeight'].values[index]}",
-                f"{df['PuchaseUnitPrice'].values[index]}",
-                f"{df['PuchaseUnitPrice'].values[index] * df['Qty'].values[index]}",
-                f"N'{df['ProductCode'].values[index]}'",
-                f"N'{df['ProductType'].values[index]}'",
-                f"N'{df['Pressure'].values[index]}'",
-                f"N'{df['GlassThickness'].values[index]}'",
-                f"{df['h_1'].values[index]}",
-                f"{df['h_2'].values[index]}",
-                f"{df['h_3'].values[index]}",
-                f"{df['h_4'].values[index]}",
-                f"{df['H_1'].values[index]}",
-                f"{df['H_2'].values[index]}",
-                f"{df['H_3'].values[index]}",
-                f"{df['H_4'].values[index]}",
-                f"N'{Spec_1}'",
-                f"N'{Spec_2}'",
-                f"N'{Spec_3}'",
-                f"N'{Spec_4}'",
-                f"N'{Spec_5}'",
-                f"N'{Ops_1}'",
-                f"N'{Ops_2}'",
-                f"N'{Ops_3}'",
-                f"N'{Ops_4}'",
-                f"N'{Ops_5}'",
-                f"{df['G1_W'].values[index]}",
-                f"{df['G1_H'].values[index]}",
-                f"{df['G2_W'].values[index]}",
-                f"{df['G2_H'].values[index]}",
-                f"{df['G3_W'].values[index]}",
-                f"{df['G3_H'].values[index]}",
-                f"{df['G4_W'].values[index]}",
-                f"{df['G4_H'].values[index]}",
-                f"N'{HandlePosition}'",
-                f"{df['HandleHeight1'].values[index]}",
-                f"{df['HandleHeight2'].values[index]}",
-                f"'{datetime.now().date()}'",
-            ]
-            status = dbShiage.InsertMadelaOrderWindowDetail(dataMadelaOrderWindowDetail)
-            if status == False:
-                print('Error no uploading InsertMadelaOrderWindowDetail !!!')
-                break
+                dataMadelaOrderWindowDetail =[
+                    f"'{datetime.now().date()}'",
+                    f"N'{order_no}'",
+                    f"{index+1}",
+                    f"N'{no_project}'",
+                    f"N'{project_name}'",
+                    "N'605401'",
+                    "N'D01023'",
+                    f"'{datetime.now().date()}'",
+                    f"N'{df['ItemNo'].values[index]}'",
+                    "N'JS03'",
+                    f"N'{df['ColorCode'].values[index]}'",
+                    f"{df['Width'].values[index]}",
+                    f"{df['Height'].values[index]}",
+                    f"{df['Qty'].values[index]}",
+                    f"{df['AlumuniumWeight'].values[index]}",
+                    f"{df['PuchaseUnitPrice'].values[index]}",
+                    f"{df['PuchaseUnitPrice'].values[index] * df['Qty'].values[index]}",
+                    f"N'{df['ProductCode'].values[index]}'",
+                    f"N'{df['ProductType'].values[index]}'",
+                    f"N'{df['Pressure'].values[index]}'",
+                    f"N'{df['GlassThickness'].values[index]}'",
+                    f"{df['h_1'].values[index]}",
+                    f"{df['h_2'].values[index]}",
+                    f"{df['h_3'].values[index]}",
+                    f"{df['h_4'].values[index]}",
+                    f"{df['H_1'].values[index]}",
+                    f"{df['H_2'].values[index]}",
+                    f"{df['H_3'].values[index]}",
+                    f"{df['H_4'].values[index]}",
+                    f"N'{Spec_1}'",
+                    f"N'{Spec_2}'",
+                    f"N'{Spec_3}'",
+                    f"N'{Spec_4}'",
+                    f"N'{Spec_5}'",
+                    f"N'{Ops_1}'",
+                    f"N'{Ops_2}'",
+                    f"N'{Ops_3}'",
+                    f"N'{Ops_4}'",
+                    f"N'{Ops_5}'",
+                    f"{df['G1_W'].values[index]}",
+                    f"{df['G1_H'].values[index]}",
+                    f"{df['G2_W'].values[index]}",
+                    f"{df['G2_H'].values[index]}",
+                    f"{df['G3_W'].values[index]}",
+                    f"{df['G3_H'].values[index]}",
+                    f"{df['G4_W'].values[index]}",
+                    f"{df['G4_H'].values[index]}",
+                    f"N'{HandlePosition}'",
+                    f"{df['HandleHeight1'].values[index]}",
+                    f"{df['HandleHeight2'].values[index]}",
+                    f"'{datetime.now().date()}'",
+                ]
+                if status:
+                    status = dbShiage.InsertMadelaOrderWindowDetail(dataMadelaOrderWindowDetail)
+                    if status == False:
+                        print('Error no uploading InsertMadelaOrderWindowDetail !!!')
+                        break
 
         if(status):
             dbShiage.cursor.commit()
@@ -372,8 +391,7 @@ def UploadMadoguchi():
         return status
 
     while True:
-        printTitle()
-        no_project = input('add new no project = ')
+        no_project = input('add new no project =')
         file_location = input('file location csv file =')
         if(no_project=='' or file_location==''):
             break
