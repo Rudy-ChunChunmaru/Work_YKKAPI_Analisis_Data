@@ -5,14 +5,14 @@ from data.data import data
 pathToGet = './data/Madela_Template/'
 pathToSave = './data/Proses_Madela_Template/'
 dataTemplate=data()
-listXlsx = dataTemplate.listXlsxRudy
+listXlsx = dataTemplate.listXlsxDiki
 
 CellNotForReplaceFromula = [
     # colom page
     'AF2','AV2','BL2','CB2',
     # colom H AND W
-    'K9','L9',
-    'K10','L10',
+    # 'K9','L9',
+    # 'K10','L10',
     # ORDER
     'E3','E4','E5','E6','E7','E8','E9','E10',
     'U3','U4','U5','U6','U7','U8','U9','U10',
@@ -46,6 +46,102 @@ ReplaceCell = [
     {'cell':'AV49','text':"'=(AV48*0.986)",'hasFormula':True},
     {'cell':'AV50','text':"'=((AV48*0.974)*0.986)",'hasFormula':True},
 ]
+
+ReplaceByTypeProduct = [
+    {   
+        'type':'frontera',
+        'product':'door-Nonhendel',
+        'bom':[
+            10190,
+            10191,
+            10192,
+            10193,
+            10194,
+            10195,
+            10196,
+            10197,
+
+            10206,
+            10207,
+            10208,
+            10209,
+            10210,
+            10211,
+            10212,
+            10213,
+        ],
+        'replacementHead':[
+            {'cell':'J14','text':'ML'},
+            {'cell':'J15','text':'YK1N'},
+            {'cell':'J16','text':''},
+            {'cell':'J17','text':'9K-40024-1'},
+            {'cell':'J18','text':''},
+        ],
+        # Material
+        'replacementMaterialOuter':[
+
+        ],
+        'replacementMaterialInner':[
+            {'row':'AJ','rowtext':'AJ','text':"'=w.7"}
+        ],
+        # Part
+        'replacementPartOuter':[
+           
+        ],
+        'replacementPartInner':[
+            {'rowValue':'BN','value':'WOODEN PANEL','rowtext':'BQ','text':"'=w.9"},
+            {'rowValue':'BN','value':'WOODEN PANEL','rowtext':'BT','text':"'=w.6"}
+        ],
+    },
+    {   
+        'type':'frontera',
+        'product':'db-door-Nonhendel',
+        'bom':[
+            10198,
+            10199,
+            10200,
+            10201,
+            10202,
+            10203,
+            10204,
+            10205,
+
+            10214,
+            10215,
+            10216,
+            10217,
+            10218,
+            10219,
+            10220,
+            10221,
+        ],
+        'replacementHead':[
+            {'cell':'J14','text':'ML'},
+            {'cell':'J15','text':'YK1N'},
+            {'cell':'J16','text':''},
+            {'cell':'J17','text':'9K-40024-1'},
+            {'cell':'J18','text':'9K-40024-2'},
+        ],
+        # Material
+        'replacementMaterialOuter':[
+
+        ],
+        'replacementMaterialInner':[
+            {'row':'AJ','rowtext':'AJ','text':"'=w.7"}
+        ],
+        # Part
+        'replacementPartOuter':[
+           
+        ],
+        'replacementPartInner':[
+            {'rowValue':'BN','value':'WOODEN PANEL','rowtext':'BQ','text':"'=w.9",'num':1},
+            {'rowValue':'BN','value':'WOODEN PANEL','rowtext':'BQ','text':"'=w.10",'num':2},
+            {'rowValue':'BN','value':'WOODEN PANEL','rowtext':'BT','text':"'=w.6"}
+        ],
+    }
+]
+
+
 
 ListHeaderPage = ['B1','R1','AH1','AX1','BN1'] 
 
@@ -189,7 +285,6 @@ def mainRun(xlsxName):
 
     # TODO-Empty Text AND Fix Fromula
     dataHeaderSheet = ColomHeaderPage()
-    
     def ColomEmptyANDFixFromula():
         countDataHeaderSheet  = 0
         for valueDataHeaderSheet in dataHeaderSheet:
@@ -202,7 +297,6 @@ def mainRun(xlsxName):
             sheetpage=typeSheetPage5
         else:
             sheetpage={}
-
 
         def ReplacementFromQtyColom(value,consStart,consEnd):
             try:
@@ -283,9 +377,7 @@ def mainRun(xlsxName):
                 else:
                     result.append(valArrayColom)
             return result
-        
-
-                    
+                  
         # start
         if not sheetpage == {}:
             # fabrication
@@ -417,11 +509,46 @@ def mainRun(xlsxName):
                         if valValToFillEmptyColsPart['cellColom'] == valValToFillEmptyColsPart['qty']:
                             valueWorkBook = "'"+f'=IF({valValToFillEmptyColsPart['qtyUnit']}{row}="",""' + f',(Q*{valValToFillEmptyColsPart['qtyUnit']}{row}))'
                         workBook.sheet.Range[f'{valValToFillEmptyColsPart['cellColom']}{row}'].Text = valueWorkBook
-                    
+
+
+    def ColomReplaceByTypeProduct():
+        def ReplaceHead(replaceList):
+            for ValueReplaceList in replaceList:
+                if 'cell' in ValueReplaceList.keys():
+                    workBook.editText(cell=ValueReplaceList['cell'],text=ValueReplaceList['text'])
+
+        def ReplacementMaterialInner(replaceList):
+            for ValueReplaceList in replaceList:
+                if 'row' in ValueReplaceList.keys():
+                    for value in range(typeSheetPage5['fabricationRowFrom'],typeSheetPage5['fabricationRowTo']):
+                       if(workBook.sheet.Range[f'{typeSheetPage5['fabricationColom'][1]['description']}{value}'].Text):
+                            workBook.sheet.Range[f'{ValueReplaceList['rowtext']}{value}'].Text = f'{ValueReplaceList['text']}'
+
+        def ReplacementPartInner(replaceList):
+            for ValueReplaceList in replaceList:
+                if 'rowValue' in ValueReplaceList.keys():
+                    countnumber = 0
+                    for value in range(typeSheetPage5['partRowFrom'],typeSheetPage5['partRowTo']):
+                        if(workBook.sheet.Range[f'{typeSheetPage5['partColom'][1]['description']}{value}'].Text == ValueReplaceList['value']):
+                            if 'num' in ValueReplaceList.keys():
+                                countnumber+=1
+                                if ValueReplaceList['num'] == countnumber:
+                                    workBook.sheet.Range[f'{ValueReplaceList['rowtext']}{value}'].Text = ValueReplaceList['text']
+                            else:
+                                workBook.sheet.Range[f'{ValueReplaceList['rowtext']}{value}'].Text = ValueReplaceList['text']
+
+        for ValueProductType in ReplaceByTypeProduct:
+            if(xlsxName in ValueProductType['bom']):
+                # ReplaceHead
+                ReplaceHead(ValueProductType['replacementHead'])
+                ReplacementMaterialInner(ValueProductType['replacementMaterialInner'])
+                ReplacementPartInner(ValueProductType['replacementPartInner'])
+                break;               
                     
     ColomFromula()
     ColomReplace()
     ColomEmptyANDFixFromula()
+    ColomReplaceByTypeProduct()
 
     workBook.saveFile(pathToSave)
     prosesFormula.endReadProses()

@@ -43,10 +43,12 @@ class CopyWorkBook:
             self.sheet = self.workbook.Worksheets.Add(namesheet)
             self.sheet.CopyFrom(copySheet)
         else:
-            self.sheet = self.workbook.Worksheets.Add(self.__switsSheetNameFix())
+            # print(self.__switsSheetNameFix())
+            self.sheet = self.workbook.Worksheets.Add(self.deSheetName)
             self.sheet.CopyFrom(self.deSheet)
 
     def __switsSheetNameFix(self,start='FIX_',end='_FIX',hasStart=False,hasEnd=False):
+      
         if self.deSheetName.find(start) != -1:
             hasStart=True
         
